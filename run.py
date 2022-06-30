@@ -65,6 +65,10 @@ if __name__ == "__main__":
                            help="If set, output word-level conll-formatted"
                                 " files in evaluation modes. Ignored in"
                                 " 'train' mode.")
+    
+    argparser.add_argument("--model-type", default="B",
+                           help="Model to train (baseline/A/B/C/D)")
+
     args = argparser.parse_args()
 
     if args.warm_start and args.weights is not None:
@@ -73,7 +77,7 @@ if __name__ == "__main__":
         sys.exit(1)
 
     seed(2020)
-    model = CorefModel(args.config_file, args.experiment)
+    model = CorefModel(args.config_file, args.experiment, args.model_type)
 
     if args.batch_size:
         model.config.a_scoring_batch_size = args.batch_size

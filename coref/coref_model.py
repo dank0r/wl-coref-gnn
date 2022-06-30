@@ -16,7 +16,11 @@ import transformers     # type: ignore
 # from pytorch_memlab import profile
 
 from coref import bert, conll, utils
-from coref.anaphoricity_scorer_gnnv4 import AnaphoricityScorer
+from coref.anaphoricity_scorer import AnaphoricityScorer as AnaphoricityScorerBaseline
+from coref.anaphoricity_scorer_gnn import AnaphoricityScorer as AnaphoricityScorerA
+from coref.anaphoricity_scorer_gnnv2 import AnaphoricityScorer as AnaphoricityScorerB
+from coref.anaphoricity_scorer_gnnv3 import AnaphoricityScorer as AnaphoricityScorerC
+from coref.anaphoricity_scorer_gnnv4 import AnaphoricityScorer as AnaphoricityScorerD
 from coref.cluster_checker import ClusterChecker
 from coref.config import Config
 from coref.const import CorefResult, Doc
@@ -51,6 +55,7 @@ class CorefModel:  # pylint: disable=too-many-instance-attributes
     def __init__(self,
                  config_path: str,
                  section: str,
+                 model_type: str,
                  epochs_trained: int = 0):
         """
         A newly created model is set to evaluation mode.
@@ -61,6 +66,7 @@ class CorefModel:  # pylint: disable=too-many-instance-attributes
             epochs_trained (int): the number of epochs finished
                 (useful for warm start)
         """
+        self.model_type = model_type
         self.config = CorefModel._load_config(config_path, section)
         self.epochs_trained = epochs_trained
         self._docs: Dict[str, List[Doc]] = {}
@@ -387,7 +393,16 @@ class CorefModel:  # pylint: disable=too-many-instance-attributes
         pair_emb = bert_emb * 3 + self.pw.shape
 
         # pylint: disable=line-too-long
-        self.a_scorer = AnaphoricityScorer(pair_emb, self.config).to(self.config.device)
+        if self.model_type == 'baseline':
+            self.a_scorer = AnaphoricityScorerBaseline(pair_emb, self.config).to(self.config.device)
+        elif self.model_type == 'A':
+            self.a_scorer = AnaphoricityScorerA(pair_emb, self.config).to(self.config.device)
+        elif self.model_type == 'B':
+            self.a_scorer = AnaphoricityScorerB(pair_emb, self.config).to(self.config.device)
+        elif self.model_type == 'C':
+            self.a_scorer = AnaphoricityScorerC(pair_emb, self.config).to(self.config.device)
+        elif self.model_type == 'D':
+            self.a_scorer = AnaphoricityScorerD(pair_emb, self.config).to(self.config.device)
         self.we = WordEncoder(bert_emb, self.config).to(self.config.device)
         self.rough_scorer = RoughScorer(bert_emb, self.config).to(self.config.device)
         self.sp = SpanPredictor(bert_emb, self.config.sp_embedding_size).to(self.config.device)
