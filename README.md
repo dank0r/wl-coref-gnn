@@ -1,6 +1,6 @@
-## Word-Level Coreference Resolution
-
-This is a repository with the code to reproduce the experiments described in the paper of the same name, which was accepted to EMNLP 2021. The paper is available [here](https://aclanthology.org/2021.emnlp-main.605/).
+## Word-Level Coreference Resolution with Graph Neural Networks
+This repository is a code for reproducing the results from my bachelor's thesis "Applying Language Modelling for Coreference Resolution" which introduces the use of Graph Neural Networks on the stage of final mention scoring.
+Most of the code is a fork from [word-level coreference resolution](https://github.com/vdobrovolskii/wl-coref/) as it's been used as a baseline model. 
 
 ### Table of contents
 1. [Preparation](#preparation)
@@ -49,8 +49,9 @@ You're all set!
 
 If you have completed all the steps in the previous section, then just run:
 
-    python run.py train roberta
+    python run.py train roberta --model-type [baseline/A/B/C/D]
 
+`--model-type` is one of the four Graph Model architectures described in my thesis plus `baseline` which stands for basic feed-forward neural network from the paper [Word-Level Coreference Resolution](https://aclanthology.org/2021.emnlp-main.605/).
 Use `-h` flag for more parameters and `CUDA_VISIBLE_DEVICES` environment variable to limit the cuda devices visible to the script. Refer to `config.toml` to modify existing model configurations or create your own.
 
 ### Evaluation
@@ -63,7 +64,7 @@ Make sure that you have successfully completed all steps of the [Preparation](#p
 
 2. Generate the conll-formatted output:
 
-        python run.py eval roberta --data-split test
+        python run.py eval roberta --data-split test --model-type [baseline/A/B/C/D]
 
 3. Run the conll-2012 scripts to obtain the metrics:
 
@@ -102,15 +103,3 @@ Then run:
         python predict.py roberta input.jsonlines output.jsonlines
 
 This will utilize the latest weights available in the data directory for the chosen configuration. To load other weights, use the `--weights` argument.
-
-### Citation
-    @inproceedings{dobrovolskii-2021-word,
-    title = "Word-Level Coreference Resolution",
-    author = "Dobrovolskii, Vladimir",
-    booktitle = "Proceedings of the 2021 Conference on Empirical Methods in Natural Language Processing",
-    month = nov,
-    year = "2021",
-    address = "Online and Punta Cana, Dominican Republic",
-    publisher = "Association for Computational Linguistics",
-    url = "https://aclanthology.org/2021.emnlp-main.605",
-    pages = "7670--7675"}
